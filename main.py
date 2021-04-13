@@ -11,7 +11,10 @@ class Solution:
     def __init__(self):
         self.a1 = 5 + self.e
         self.a2 = self.a3 = -1
-        self.band = [self.a1, self.a2, self.a3]
+    
+    @property
+    def band(self):
+        return [self.a1, self.a2, self.a3]
 
     def task_a(self):
         self.A = func.create_band_matrix(self.N, self.band)
@@ -22,19 +25,28 @@ class Solution:
 
         time_gauss_seidl = func.solve_gauss_seidl(self.A, self.b)
 
-        if time_jacobi > time_gauss_seidl:
-            print(f'Gauss-Seild method was {time_jacobi - time_gauss_seidl} faster')   
-        else:
-            print(f'Jacobi method was {time_jacobi - time_gauss_seidl} faster')
+        func.determine_faster(time_jacobi, time_gauss_seidl)
 
     def task_c(self):
-        pass
+        self.a1 = 3
+        self.a2 = self.a3 = -1
+
+        self.A = func.create_band_matrix(self.N, self.band)
+
+        self.task_b()
+
+    def task_d(self):
+        func.solve_lu_factorization(self.A, self.b)
+
+    
         
 
 def main():
     solution = Solution()
     solution.task_a()
     solution.task_b()
+    solution.task_c()
+    solution.task_d()
 
 
 
