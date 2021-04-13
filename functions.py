@@ -1,5 +1,6 @@
 import numpy as np
 from timeit import default_timer as timer
+from matplotlib import pyplot as plt
 
 def seperate(func):
     def inner(*args, **kwargs):
@@ -144,7 +145,7 @@ def solve_gauss_seidl(A: np.ndarray, b: np.ndarray) -> float:
 @seperate
 def determine_faster(jacobi: float, gauss_seidl: float):
     if jacobi > gauss_seidl:
-        print(f'Gauss-Seild method was {jacobi - gauss_seidl} s faster')   
+        print(f'Gauss-Seidl method was {jacobi - gauss_seidl} s faster')   
     else:
         print(f'Jacobi method was {jacobi - gauss_seidl} s faster')
 
@@ -171,5 +172,13 @@ def solve_lu_factorization(A: np.ndarray, b: np.ndarray):
     print('Finished solving with LU factorization')
     print(f'Duration: {total_time}')
     
+@seperate
+def plot_times(N: list[int], jacobi: list[float], gauss_seidl: list[float]):
+    plt.plot(N, jacobi, label='Jacobi')
+    plt.plot(N, gauss_seidl, label='Gauss-Seidl')
 
-    
+    plt.xlabel('Matrices dimenions [j]')
+    plt.ylabel('Time [s]')
+    plt.title('Time comparison between Jacobi and Gauss-Seidl methods')
+    plt.legend()
+    plt.show()
