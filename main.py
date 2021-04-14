@@ -42,7 +42,7 @@ class Solution:
         self.task_b()
 
     def task_d(self):
-        func.solve_lu_factorization(self.A, self.b)
+        time_lu = func.solve_lu_factorization(self.A, self.b)
 
     def task_e(self):
         N = [100, 500, 1000, 2000, 3000, 4000, 5000]
@@ -51,6 +51,7 @@ class Solution:
 
         jacobi = []
         gauss_seidl = []
+        lu = []
 
         for n in N:
             self.A = func.create_band_matrix(n, self.band)
@@ -58,10 +59,10 @@ class Solution:
 
             jacobi.append(func.solve_jacobi(self.A, self.b))
             gauss_seidl.append(func.solve_gauss_seidl(self.A, self.b))
+            lu.append(func.solve_lu_factorization(self.A, self.b))
 
-        func.plot_times(N, jacobi, gauss_seidl)
+        func.plot_times(N, jacobi, gauss_seidl, lu)
         
-
 def main():
     solution = Solution()
     solution.task_a()
@@ -69,8 +70,6 @@ def main():
     solution.task_c()
     solution.task_d()
     solution.task_e()
-
-
 
 if __name__:
     main()

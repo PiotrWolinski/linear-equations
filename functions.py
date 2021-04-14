@@ -31,7 +31,8 @@ def create_band_matrix(size: int, band: list[int]=None) -> np.ndarray:
     
     return A
 
-# Creates vector
+# Creates vector b with values defined by the expression
+# sin(n * (f + 1)) where n is n-th element in the vector
 def create_b_vector(size: int, f: int) -> np.ndarray:
     b = np.zeros((size, 1))
 
@@ -86,7 +87,7 @@ def solve_jacobi(A: np.ndarray, b: np.ndarray) -> float:
         total_time = 0
         print('Method was interrupted during execution')
 
-    print(f'Duration: {total_time}')
+    print(f'Duration: {total_time} s')
     print(f'Iterations: {iterations}')
 
     return total_time
@@ -137,7 +138,7 @@ def solve_gauss_seidl(A: np.ndarray, b: np.ndarray) -> float:
         total_time = 0
         print('Method was interrupted during execution')
 
-    print(f'Duration: {total_time}')
+    print(f'Duration: {total_time} s')
     print(f'Iterations: {iterations}')
 
     return total_time
@@ -149,7 +150,6 @@ def determine_faster(jacobi: float, gauss_seidl: float):
     else:
         print(f'Jacobi method was {jacobi - gauss_seidl} s faster')
 
-
 @seperate
 def solve_lu_factorization(A: np.ndarray, b: np.ndarray):
     m = A.shape[0]
@@ -159,23 +159,70 @@ def solve_lu_factorization(A: np.ndarray, b: np.ndarray):
     
     U = A.copy()
     L = np.eye(m)
+    x = np.zeros(m)
 
     start = timer()
 
-    for k in range(m):
+    for k in range(m - 1):
         for j in range(k + 1, m):
             L[j][k] = U[j][k] / U[k][k]
             U[j][k:m] = U[j][k:m] - (L[j][k] * U[k][k:m])
 
+    y = forward_substitution(L, b)
+
+    x = backward_substitution(U, y)
+
+    res = np.linalg.norm((A @ x) - b)
+
     total_time = timer() - start
 
     print('Finished solving with LU factorization')
-    print(f'Duration: {total_time}')
-    
+    print(f'Duration: {total_time} s')
+    print(f'Residuum norm = {res}')
+
+    return total_time
+
+def forward_substitution(L: np.ndarray, b: np.ndarray) -> np.ndarray:
+    size = L.shape[0]
+    x = np.zeros((size, 1))
+
+    for m in range(size):
+        if m == 0:
+            x[m] = b[m] / L[m][m]
+            continue
+        
+        sub = 0
+
+        for i in range(m):
+            sub += L[m][i] * x[i]
+
+        x[m] = (b[m] - sub) / L[m][m]
+
+    return x
+
+def backward_substitution(U: np.ndarray, b: np.ndarray) -> np.ndarray:
+    size = U.shape[0]
+    x = np.zeros((size, 1))
+
+    for m in range(size - 1, -1, -1):
+        if m == size - 1:
+            x[m] = b[m] / U[m][m]
+            continue
+        
+        sub = 0
+
+        for i in range(size - 1, m, -1):
+            sub += U[m][i] * x[i]
+
+        x[m] = (b[m] - sub) / U[m][m]
+
+    return x
+
 @seperate
-def plot_times(N: list[int], jacobi: list[float], gauss_seidl: list[float]):
+def plot_times(N: list[int], jacobi: list[float], gauss_seidl: list[float], lu: list[float]):
     plt.plot(N, jacobi, label='Jacobi')
     plt.plot(N, gauss_seidl, label='Gauss-Seidl')
+    plt.plot(N, lu, label='LU factorization')
 
     plt.xlabel('Matrices dimenions [j]')
     plt.ylabel('Time [s]')
